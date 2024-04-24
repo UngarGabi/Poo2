@@ -1,0 +1,3 @@
+C:/Users/GabitzU/CLionProjects/ProiectPOO2/cmake-build-debug/CMakeFiles/ProiectPOO2.dir
+C:/Users/GabitzU/CLionProjects/ProiectPOO2/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/GabitzU/CLionProjects/ProiectPOO2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
