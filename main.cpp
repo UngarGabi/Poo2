@@ -271,7 +271,6 @@ protected:
     int id;
 public:
     virtual void Rol() = 0;
-
     int logare(int cod) {
         if (cod == id)
             return 1;
@@ -303,25 +302,56 @@ public:
     }
 };
 
-class Casier : public Angajat{
+class Casier : public Angajat {
 private:
     std::string casa;
 public:
-    Casier(std::string nume, int id, std::string casa){
+    Casier() = default;
+    Casier(std::string nume, int id, std::string casa) {
         this->nume = nume;
         this->id = id;
         this->casa = casa;
     }
+
     void Rol() override {
-        std::cout << nume << " este casier/a" << '\n';
+        std::cout << nume << " este casier/a." << '\n';
     }
 
+    void setcasa(std::string casanoua){
+        casa = casanoua;
+    }
 
+    void deschide() {
+        std::cout << "Deschidem " << casa << " pentru clienti." << '\n';
+    }
+};
+
+class Ingrijitor : public Angajat {
+private:
+    std::string raion;
+public:
+    Ingrijitor() = default;
+    Ingrijitor(std::string nume, int id, std::string raion) {
+        this->nume = nume;
+        this->id = id;
+        this->raion = raion;
+    }
+
+    void Rol() override {
+        std::cout << nume << " este ingrijitor." << '\n';
+    }
+
+    void spala() {
+        std::cout << "Am spalat raionul" << raion << '\n';
+    }
+
+    void setraion(std::string raionnou) {
+        raion = raionnou;
+    }
 };
 
 
 int main() {
-
     Produs ciocolata(20,"Milka");
     Produs jeleu(10,"Haribo");
     Produs biscuite(15,"Oreo");
@@ -392,8 +422,14 @@ int main() {
         std::cout << "Doresc angajatii sa schimbe ceva(Da/Nu)?" << '\n';
         std::string s;
         int id;
-        Manager manager;
         int okid = 0;
+        int okpret;
+        Manager manager;
+        Casier casier;
+        Ingrijitor ingrijitor;
+        std::string produsul;
+        std::string casaaleasa;
+        std::string raionales;
         std::cin >> s;
         if (s == "Da") {
             while(okmare1==1) {
@@ -407,47 +443,73 @@ int main() {
                     }
                 }
                 if (okid == 1) {
-                    std::cout << "Ce doriti sa faceti?" << '\n';
-                    std::cout << "1. Cresc pretul unui produs." << '\n';
-                    std::cout << "2. Scad pretul unui produs." << '\n';
-                    int Alegere;
-                    int procent;
-                    std::string produsul;
-                    std::cin >> Alegere;
-                    int okpret = 0;
-                    if (Alegere == 1) {
-                        std::cout << "Alegeti un produs" << '\n';
-                        std::cin >> produsul;
-                        std::cout << "Alegeti un procent cu care sa scumpiti" << '\n';
-                        std::cin >> procent;
-                        int n = produse.size();
-                        for (int i = 0; i < n; i++)
-                            if (produse[i].getNume() == produsul) {
-                                manager.scumpire(produse[i], procent);
-                                okpret = 1;
-                                break;
+                    std::cout << "Ce rol aveti?" << '\n';
+                    std::cout << "1.Manager" << '\n';
+                    std::cout << "2.Casier" << '\n';
+                    std::cout << "3.Ingrijitor" << '\n';
+                    int caz;
+                    std::cin>>caz;
+                    switch(caz) {
+                        case 1:
+                            std::cout << "Ce doriti sa faceti?" << '\n';
+                            std::cout << "1. Cresc pretul unui produs." << '\n';
+                            std::cout << "2. Scad pretul unui produs." << '\n';
+                            int Alegere;
+                            int procent;
+                            std::cin >> Alegere;
+                            okpret = 0;
+                            if (Alegere == 1) {
+                                std::cout << "Alegeti un produs" << '\n';
+                                std::cin >> produsul;
+                                std::cout << "Alegeti un procent cu care sa scumpiti" << '\n';
+                                std::cin >> procent;
+                                int n = produse.size();
+                                for (int i = 0; i < n; i++)
+                                    if (produse[i].getNume() == produsul) {
+                                        manager.scumpire(produse[i], procent);
+                                        std::cout << produse[i] << '\n';
+                                        okpret = 1;
+                                        break;
+                                    }
+                                if (okpret == 0)
+                                    std::cout << "Produsul nu exista" << '\n';
                             }
-                        if (okpret == 0)
-                            std::cout << "Produsul nu exista" << '\n';
-                    }
-                    else
-                        if (Alegere == 2) {
-                            std::cout << "Alegeti un produs" << '\n';
-                            std::cin >> produsul;
-                            std::cout << "Alegeti un procent cu care sa ieftiniti" << '\n';
-                            std::cin >> procent;
-                            int n = produse.size();
-                            for (int i = 0; i < n; i++)
-                                if (produse[i].getNume() == produsul) {
-                                    manager.ieftinire(produse[i], procent);
-                                    break;
+                            else
+                                if (Alegere == 2) {
+                                    std::cout << "Alegeti un produs" << '\n';
+                                    std::cin >> produsul;
+                                    std::cout << "Alegeti un procent cu care sa ieftiniti" << '\n';
+                                    std::cin >> procent;
+                                    int n = produse.size();
+                                    for (int i = 0; i < n; i++)
+                                        if (produse[i].getNume() == produsul) {
+                                            manager.ieftinire(produse[i], procent);
+                                            std::cout << produse[i] << '\n';
+                                            okpret = 1;
+                                            break;
+                                        }
+                                    if (okpret == 0)
+                                        std::cout << "Produsul nu exista" << '\n';
                                 }
-                            if (okpret == 0)
-                                std::cout << "Produsul nu exista" << '\n';
-                        }
                             else
                                 std::cout << "Alegere gresita";
+                            break;
 
+                        case 2:
+                            std::cout << "Ce casa deschideti?" << '\n';
+                            std::cin>>casaaleasa;
+                            casier.setcasa(casaaleasa);
+                            casier.deschide();
+                            break;
+                        case 3:
+                            std::cout << "Ce raion curatati?" << '\n';
+                            std::cin>>raionales;
+                            ingrijitor.setraion(raionales);
+                            ingrijitor.spala();
+                            break;
+                        default:
+                            std::cout << "Rol introdus gresit" << '\n';
+                    }
                 }
                 std::cout << "Mai sunt si alti angajati?" << '\n';
                 std::string alegereangajat;
@@ -563,7 +625,7 @@ int main() {
             }
         else
             if(s == "Nu")
-                std::cout << "O zi buna";
+                std::cout << "O zi buna!";
             else
                 std::cout << "Alegere introdusa gresit";
 
