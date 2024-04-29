@@ -19,6 +19,7 @@ public:
         return (this->nume == produs.nume); //Supraincarcare operator == pentru a verifica daca produsul ales se afla in lista de produse
     }
     friend std::ostream& operator<<(std::ostream& out, const Produs& produs);
+    friend class Manager;
 };
 
 std::ostream& operator<<(std::ostream& out, const Produs& produs) {
@@ -35,7 +36,7 @@ public:
     virtual Produs cautare(std::string alegere) = 0; // Cauta produsul in lista pentru a-l pune in cos
     virtual int marimevector() = 0; //Marimea listei
 };
-//Interfara Raioane magazin
+//Interfata Raioane magazin
 class RaionHaine: public Magazin {
 private:
     std::string nume;
@@ -205,15 +206,10 @@ public:
 };
 //Bauturi
 
-class Persoana{
-protected:
-    std::string nume;
-    std::string rol;
-public:
-};
 
-class Client : public Persoana{
+class Client {
 private:
+    std::string nume;
     double bani;
     std::vector<Produs> Cos;
 public:
@@ -269,12 +265,63 @@ std::istream& operator>>(std::istream& in, Client& client){
     return in;
 }
 
-class Angajat : public Persoana{
-private:
+class Angajat {
+protected:
+    std::string nume;
     int id;
+public:
+    virtual void Rol() = 0;
+
+    int logare(int cod) {
+        if (cod == id)
+            return 1;
+        else
+            return 0;
+    }
 };
 
+class Manager : public Angajat {
+private:
+    std::string raion;
+public:
+    Manager()=default;
+    Manager(std::string nume, int id, std::string raion) {
+        this->nume = nume;
+        this->id = id;
+        this->raion = raion;
+    }
+
+    void Rol() override {
+        std::cout << nume << " este un manager" << '\n';
+    }
+
+    void scumpire(Produs& produs, int procent){
+        produs.pret+=produs.pret*procent/100;
+    }
+    void ieftinire(Produs& produs, int procent){
+        produs.pret-=produs.pret*procent/100;
+    }
+};
+
+class Casier : public Angajat{
+private:
+    std::string casa;
+public:
+    Casier(std::string nume, int id, std::string casa){
+        this->nume = nume;
+        this->id = id;
+        this->casa = casa;
+    }
+    void Rol() override {
+        std::cout << nume << " este casier/a" << '\n';
+    }
+
+
+};
+
+
 int main() {
+
     Produs ciocolata(20,"Milka");
     Produs jeleu(10,"Haribo");
     Produs biscuite(15,"Oreo");
@@ -314,97 +361,217 @@ int main() {
     haine.AdaugaProdus(caciula);
     haine.AdaugaProdus(geaca);
     haine.AdaugaProdus(pantaloni);
-//adaug produse pe raioane
-    Client client;
-    std::cin >> client;
-    int i,ok=1;
-    while(ok==1) {
-        Produs null(-1, "null");
-        std::string alegere;
-        int c;
-        std::cout << "Bine ati venit" << '\n';
-        std::cout << "Pe ce raion doriti sa mergeti?" << '\n';
-        std::cout << "1.Dulciuri" << '\n' << "2.Bauturi" << '\n' << "3.Haine" << '\n';
-        std::cin >> i;
-        std::cout << '\n';
-        //cazuri de raioane
-        switch (i) {
-            case 1:
-                std::cout << "Selectati produsele pe care doriti sa le adaugati in cos:" << '\n';
-                dulce.AfiseazaListaProduse();
-                c = 1;
-                while (c == 1) {
-                    std::cin >> alegere;
-                    if (alegere == "atat")
+
+    std::vector<Produs> produse;
+
+    produse.push_back(ciocolata);
+    produse.push_back(jeleu);
+    produse.push_back(biscuite);
+    produse.push_back(croissant);
+    produse.push_back(bomboane);
+    produse.push_back(suc);
+    produse.push_back(vin);
+    produse.push_back(apa);
+    produse.push_back(bere);
+    produse.push_back(vodka);
+    produse.push_back(tricou);
+    produse.push_back(sosete);
+    produse.push_back(caciula);
+    produse.push_back(geaca);
+    produse.push_back(pantaloni);
+
+
+
+    std::vector<Angajat*> angajati;
+
+    angajati.push_back(new Manager("Gabi", 1111, "haine"));
+    angajati.push_back(new Casier("Alex",1111," casa2"));
+    angajati.push_back(new Casier("Tudor",1111, "casa1"));
+
+    int okmare1=1;
+        std::cout << "Doresc angajatii sa schimbe ceva(Da/Nu)?" << '\n';
+        std::string s;
+        int id;
+        Manager manager;
+        int okid = 0;
+        std::cin >> s;
+        if (s == "Da") {
+            while(okmare1==1) {
+                std::cout << "introduceti ID:" << '\n';
+                std::cin >> id;
+                for (Angajat *angajat: angajati) {
+                    if (angajat->logare(id) == 1) {
+                        std::cout << "ID corect!" << '\n';
+                        okid = 1;
                         break;
-                    if (dulce.cautare(alegere) == null)
-                        std::cout << "Produsul nu a fost gasit." << '\n';
-                    else {
-                        client.AdaugaCos(dulce.cautare(alegere));
-                        std::cout << "Produsul ales a fost adaugat in cos cu succes." << '\n';
                     }
-                    std::cout << "Mai adaugati ceva in cos de pe alt raion?(Da/Nu)" << '\n';
-                    std::cin >> alegere;
-                    if (alegere == "Nu")
-                        c = 0;
-                    else
-                        std::cout<<"Alegeti alt produs:" << '\n';
                 }
-                break;
-            case 2:
-                std::cout << "Selectati produsele pe care doriti sa le adaugati in cos:" << '\n';
-                bauturi.AfiseazaListaProduse();
-                c = 1;
-                while (c == 1) {
-                    std::cin >> alegere;
-                    if (bauturi.cautare(alegere) == null)
-                        std::cout << "Produsul nu a fost gasit." << '\n';
-                    else {
-                        client.AdaugaCos(bauturi.cautare(alegere));
-                        std::cout << "Produsul ales a fost adaugat in cos cu succes." << '\n';
+                if (okid == 1) {
+                    std::cout << "Ce doriti sa faceti?" << '\n';
+                    std::cout << "1. Cresc pretul unui produs." << '\n';
+                    std::cout << "2. Scad pretul unui produs." << '\n';
+                    int Alegere;
+                    int procent;
+                    std::string produsul;
+                    std::cin >> Alegere;
+                    int okpret = 0;
+                    if (Alegere == 1) {
+                        std::cout << "Alegeti un produs" << '\n';
+                        std::cin >> produsul;
+                        std::cout << "Alegeti un procent cu care sa scumpiti" << '\n';
+                        std::cin >> procent;
+                        int n = produse.size();
+                        for (int i = 0; i < n; i++)
+                            if (produse[i].getNume() == produsul) {
+                                manager.scumpire(produse[i], procent);
+                                okpret = 1;
+                                break;
+                            }
+                        if (okpret == 0)
+                            std::cout << "Produsul nu exista" << '\n';
                     }
-                    std::cout << "Mai adaugati ceva in cos?(Da/Nu)" << '\n';
-                    std::cin >> alegere;
-                    if (alegere == "Nu")
-                        c = 0;
                     else
-                        std::cout<<"Alegeti alt produs:" << '\n';
+                        if (Alegere == 2) {
+                            std::cout << "Alegeti un produs" << '\n';
+                            std::cin >> produsul;
+                            std::cout << "Alegeti un procent cu care sa ieftiniti" << '\n';
+                            std::cin >> procent;
+                            int n = produse.size();
+                            for (int i = 0; i < n; i++)
+                                if (produse[i].getNume() == produsul) {
+                                    manager.ieftinire(produse[i], procent);
+                                    break;
+                                }
+                            if (okpret == 0)
+                                std::cout << "Produsul nu exista" << '\n';
+                        }
+                            else
+                                std::cout << "Alegere gresita";
+
                 }
-                break;
-            case 3:
-                std::cout << "Selectati produsele pe care doriti sa le adaugati in cos:" << '\n';
-                haine.AfiseazaListaProduse();
-                c = 1;
-                while (c == 1) {
-                    std::cin >> alegere;
-                    if (haine.cautare(alegere) == null)
-                        std::cout << "Produsul nu a fost gasit." << '\n';
-                    else {
-                        client.AdaugaCos(haine.cautare(alegere));
-                        std::cout << "Produsul ales a fost adaugat in cos cu succes." << '\n';
+                std::cout << "Mai sunt si alti angajati?" << '\n';
+                std::string alegereangajat;
+                std::cin >> alegereangajat;
+
+                if (alegereangajat == "Nu")
+                    okmare1 = 0;
+            }
+
+        }
+        std::cout<<"Sunt clienti la coada?" << '\n';
+        std::cin>>s;
+            if (s == "Da") {
+                int okmare2 = 1;
+                while (okmare2 == 1) {
+                    Client client;
+                    std::cin >> client;
+                    int i, ok = 1;
+                    while (ok == 1) {
+                        Produs null(-1, "null");
+                        std::string alegere;
+                        int c;
+                        std::cout << "Bine ati venit" << '\n';
+                        std::cout << "Pe ce raion doriti sa mergeti?" << '\n';
+                        std::cout << "1.Dulciuri" << '\n' << "2.Bauturi" << '\n' << "3.Haine" << '\n';
+                        std::cin >> i;
+                        std::cout << '\n';
+                        //cazuri de raioane
+                        switch (i) {
+                            case 1:
+                                std::cout << "Selectati produsele pe care doriti sa le adaugati in cos:" << '\n';
+                                dulce.AfiseazaListaProduse();
+                                c = 1;
+                                while (c == 1) {
+                                    std::cin >> alegere;
+                                    if (alegere == "atat")
+                                        break;
+                                    if (dulce.cautare(alegere) == null)
+                                        std::cout << "Produsul nu a fost gasit." << '\n';
+                                    else {
+                                        client.AdaugaCos(dulce.cautare(alegere));
+                                        std::cout << "Produsul ales a fost adaugat in cos cu succes." << '\n';
+                                    }
+                                    std::cout << "Mai adaugati ceva in cos?(Da/Nu)" << '\n';
+                                    std::cin >> alegere;
+                                    if (alegere == "Nu")
+                                        c = 0;
+                                    else
+                                        std::cout << "Alegeti alt produs:" << '\n';
+                                }
+                                break;
+                            case 2:
+                                std::cout << "Selectati produsele pe care doriti sa le adaugati in cos:" << '\n';
+                                bauturi.AfiseazaListaProduse();
+                                c = 1;
+                                while (c == 1) {
+                                    std::cin >> alegere;
+                                    if (bauturi.cautare(alegere) == null)
+                                        std::cout << "Produsul nu a fost gasit." << '\n';
+                                    else {
+                                        client.AdaugaCos(bauturi.cautare(alegere));
+                                        std::cout << "Produsul ales a fost adaugat in cos cu succes." << '\n';
+                                    }
+                                    std::cout << "Mai adaugati ceva in cos?(Da/Nu)" << '\n';
+                                    std::cin >> alegere;
+                                    if (alegere == "Nu")
+                                        c = 0;
+                                    else
+                                        std::cout << "Alegeti alt produs:" << '\n';
+                                }
+                                break;
+                            case 3:
+                                std::cout << "Selectati produsele pe care doriti sa le adaugati in cos:" << '\n';
+                                haine.AfiseazaListaProduse();
+                                c = 1;
+                                while (c == 1) {
+                                    std::cin >> alegere;
+                                    if (haine.cautare(alegere) == null)
+                                        std::cout << "Produsul nu a fost gasit." << '\n';
+                                    else{
+                                        client.AdaugaCos(haine.cautare(alegere));
+                                        std::cout << "Produsul ales a fost adaugat in cos cu succes." << '\n';
+                                    }
+                                    std::cout << "Mai adaugati ceva in cos?(Da/Nu)" << '\n';
+                                    std::cin >> alegere;
+                                    if (alegere == "Nu")
+                                        c = 0;
+                                    else
+                                        std::cout << "Alegeti alt produs:" << '\n';
+                                }
+                                break;
+                            default:
+                                std::cout << "Raionul nu exista." << '\n';
+                                break;
+                        };
+                        std::cout << "Mai doriti sa alegeti produse de pe alt raion?(Da/Nu):" << '\n';
+                        std::cin >> alegere;
+                        if (alegere == "Nu")
+                            ok = 0;
                     }
-                    std::cout << "Mai adaugati ceva in cos?(Da/Nu)" << '\n';
-                    std::cin >> alegere;
-                    if (alegere == "Nu")
-                        c = 0;
-                    else
-                        std::cout<<"Alegeti alt produs:" << '\n';
+                    std::cout << "Asa arata cosul dumneavostra:" << '\n';
+                    client.AfiseazaListaProduseCos();
+                    std::cout << "Suma totala a cosului dumneavoastra este de" << " " << client.sumaCos() << '\n';
+                    std::cout << "Va rugam sa platiti suma afisata." << '\n';
+                    client.cumparaProduse();
+                    std::cout << "Mai sunt clienti?" << '\n';
+                    std::string alegereclient;
+                    std::cin >> alegereclient;
+
+                    if (alegereclient == "Nu")
+                        okmare2 = 0;
                 }
-                break;
-            default:
-                std::cout<<"Raionul nu exista."<<'\n';
-                break;
-        };
-        std::cout << "Mai doriti sa alegeti produse?(Da/Nu):" << '\n';
-        std::cin>>alegere;
-        if(alegere=="Nu")
-            ok=0;
+            }
+        else
+            if(s == "Nu")
+                std::cout << "O zi buna";
+            else
+                std::cout << "Alegere introdusa gresit";
+
+
+    for(Angajat* angajat : angajati){
+        delete angajat;
     }
-    std::cout<<"Asa arata cosul dumneavostra:" << '\n';
-    client.AfiseazaListaProduseCos();
-    std::cout << "Suma totala a cosului dumneavoastra este de" << " " << client.sumaCos()<< '\n';
-    std::cout << "Va rugam sa platiti suma afisata." << '\n';
-    client.cumparaProduse();
+    
 
     return 0;
 }
