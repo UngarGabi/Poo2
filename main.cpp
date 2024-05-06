@@ -35,6 +35,7 @@ public:
     virtual void AfiseazaListaProduse() = 0; //Afiseaza produsele de pe raion
     virtual Produs cautare(std::string alegere) = 0; // Cauta produsul in lista pentru a-l pune in cos
     virtual int marimevector() = 0; //Marimea listei
+    virtual ~Magazin(){};
 };
 //Interfata Raioane magazin
 class RaionHaine: public Magazin {
@@ -90,6 +91,7 @@ public:
     int marimevector() override{
         return produseHaine.size();
     }
+    ~RaionHaine(){};
 };
 //Haine
 
@@ -147,6 +149,7 @@ public:
     int marimevector() override{
         return produseDulci.size();
     }
+    ~RaionDulce(){};
 };
 // Dulciuri
 
@@ -203,6 +206,7 @@ public:
     int marimevector() override{
         return produseBauturi.size();
     }
+    ~RaionBauturi(){};
 };
 //Bauturi
 
@@ -217,6 +221,12 @@ public:
     Client(std::string nume, double bani) {
         this->nume=nume;
         this->bani=bani;
+    }
+    std::string getNume(){
+        return nume;
+    }
+    double getBani(){
+        return bani;
     }
     void AdaugaCos(const Produs& produs) {
         Cos.push_back(produs);
@@ -249,9 +259,10 @@ public:
         int a = sumaCos();
         if (bani >= a) {
             bani -= a;
-            std::cout << "Multumim pentru cumparaturi!";
-        } else {
-            std::cout << "Tranzactie esuata, fonduri insuficiente.";
+            std::cout << "Multumim pentru cumparaturi!" << '\n';
+        }
+        else {
+            std::cout << "Tranzactie esuata, fonduri insuficiente." << '\n';
         }
     }
     friend std::istream& operator>>(std::istream& in, Client& client);
@@ -277,6 +288,7 @@ public:
         else
             return 0;
     }
+    virtual ~Angajat(){};
 };
 
 class Manager : public Angajat {
@@ -300,6 +312,7 @@ public:
     void ieftinire(Produs& produs, int procent){
         produs.pret-=produs.pret*procent/100;
     }
+    ~Manager(){};
 };
 
 class Casier : public Angajat {
@@ -324,6 +337,7 @@ public:
     void deschide() {
         std::cout << "Deschidem " << casa << " pentru clienti." << '\n';
     }
+    ~Casier(){};
 };
 
 class Ingrijitor : public Angajat {
@@ -348,8 +362,40 @@ public:
     void setraion(std::string raionnou) {
         raion = raionnou;
     }
+    ~Ingrijitor(){};
+};
+class Bon{
+private:
+    std::string numeclient;
+    double pret;
+    static std::string data;
+public:
+    Bon() = default;
+    Bon(std::string numeclient, double pret) {
+        this->numeclient = numeclient;
+        this->pret = pret;
+    }
+    static void setData(std::string Data) {
+        data = Data;
+    }
+
+    static void afiseazadata() {
+        std::cout << data << '\n';
+    }
+    friend std::ostream& operator<<(std::ostream& out, Bon& bon);
+    ~Bon(){};
 };
 
+std::ostream& operator<<(std::ostream& out, Bon& bon) {
+    out << "Produsele au fost cumparate de:" << '\n';
+    out << bon.numeclient << '\n';
+    out << "Pentru pretul de:" << '\n';
+    out << bon.pret << '\n';
+    out << "Produsele au fost cumparate la data de:" << '\n';
+    out << bon.data << '\n';
+    return out;
+}
+std::string Bon::data="";
 
 int main() {
     Produs ciocolata(20,"Milka");
@@ -411,7 +457,6 @@ int main() {
     produse.push_back(pantaloni);
 
 
-
     std::vector<Angajat*> angajati;
 
     angajati.push_back(new Manager("Gabi", 1111, "haine"));
@@ -432,8 +477,12 @@ int main() {
         std::string raionales;
         std::cin >> s;
         if (s == "Da") {
+            std::cout <<" Va rugam selectati data zilei de azi:" <<'\n';
+            std::string data;
+            std::cin >> data;
+            Bon::setData(data);
             while(okmare1==1) {
-                std::cout << "introduceti ID:" << '\n';
+                std::cout << "introduceti ID(toate sunt 1111):" << '\n';
                 std::cin >> id;
                 for (Angajat *angajat: angajati) {
                     if (angajat->logare(id) == 1) {
@@ -615,6 +664,10 @@ int main() {
                     std::cout << "Suma totala a cosului dumneavoastra este de" << " " << client.sumaCos() << '\n';
                     std::cout << "Va rugam sa platiti suma afisata." << '\n';
                     client.cumparaProduse();
+                    if(client.sumaCos()=>client.getBani()) {
+                        Bon bon(client.getNume(), client.sumaCos());
+                        std::cout << bon << '\n';
+                    }
                     std::cout << "Mai sunt clienti?" << '\n';
                     std::string alegereclient;
                     std::cin >> alegereclient;
@@ -633,7 +686,7 @@ int main() {
     for(Angajat* angajat : angajati){
         delete angajat;
     }
-    
 
+    
     return 0;
 }
